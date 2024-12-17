@@ -1,0 +1,7 @@
+package org.example.marathon.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.example.marathon.domain.po.Player;
+
+public interface PlayerMapper extends BaseMapper<Player> {
+}

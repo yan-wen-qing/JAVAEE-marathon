@@ -1,10 +1,9 @@
 import request from '@/utils/request';
 
-/*男女混合*/
-export function getRank(Event_ID, topN, gender) {
+export function getRank(event_id, topN, gender,sortOrder) {
     return request({
-        url: '/Result/get_top_players',
+        url: '/TopPlayers/get_top_players',
         method: 'get',
-        params: { Event_ID, topN, gender }
+        params: { event_id, topN, gender,sortOrder }
     });
 }

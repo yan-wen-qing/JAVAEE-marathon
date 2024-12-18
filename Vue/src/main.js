@@ -8,6 +8,7 @@ import router from './router'
 //引入VueRouter
 import VueRouter from 'vue-router'
 // 防止连续跳转同一路由时的错误
+
 let push = VueRouter.prototype.push;
 let replace = VueRouter.prototype.replace;
 VueRouter.prototype.push = function (location) {

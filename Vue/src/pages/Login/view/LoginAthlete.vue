@@ -48,21 +48,26 @@ export default {
     async LoginAthlete() {
       // 组织要发送的数据
       const data = {
-        Name: this.name,
-        Id_Number: this.idNumber,
-        Password: this.password
+        name: this.name,
+        idNumber: this.idNumber,
+        password: this.password
       };
 
       // 调用API进行登录
       try {
         const response = await loginPlayer(data);
-        if (response === 2) {
+        if (response.msg === '未注册') {
           this.$message.warning('该用户未注册')
         }
-        else if (response) {
+        else if (response.msg === '错误') {
+          this.$message.warning('登录失败，请检查用户名、身份证号和密码')
+          this.errorMessage = '登录失败，请检查用户名、身份证号和密码';
+        }
+        else if (response.code == 1) {
           this.$message.success('登录成功！')
           localStorage.setItem('UserRole', 'Athlete');
-          localStorage.setItem('UserId', response.Id);
+          localStorage.setItem('UserId', response.data);
+    
           setTimeout(() => {
             location.href = 'index.html'; // 登录成功后跳转到首页
           }, 1000)

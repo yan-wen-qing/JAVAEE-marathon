@@ -113,14 +113,14 @@ export default {
       try {
         const response = await getParticipantInfo(playerId);
         console.log('加载的选手信息:', response);
-        if (response) {
+        if (response.data) {
           this.participant = {
-            name: response.Name,
-            gender: response.Gender,
-            age: response.Age,
-            idCard: response.Id_Number,
-            region: response.Region,
-            contact: response.Telephone_Number
+            name: response.data.name,
+            gender: response.data.gender,
+            age: response.data.age,
+            idCard: response.data.idNumber,
+            region: response.data.region,
+            contact: response.data.telephoneNumber
           };
           this.selectedProvince = this.participant.region; // 设置省份
         } else {
@@ -153,9 +153,9 @@ export default {
       try {
         // 创建一个包含只需要提交的字段的对象
         const registrationData = {
-          role_: this.participant.role,
-          player_Id: playerId,
-          Event_Id: eventId // 这里可以动态设置 event_Id
+          role: this.participant.role,
+          playerId: playerId,
+          eventId: eventId // 这里可以动态设置 event_Id
         };
 
         // 提交报名信息

@@ -166,20 +166,27 @@ export default {
     loadAllEvents() {
       fetchAllEvents().then(response => {
         console.log(response);
-        // 映射 eventList 数组
-        this.events = response.map(Event => ({
-          id: Event.id,
-          date: this.formatDate(Event.event_Date),
-          name: Event.name,
-          type: Event.category,
-          scale: Event.scale
-        }))
+        // 初始化一个空数组
+        this.events = [];
+        
+        // 遍历 response.data 数组，逐个处理元素
+        response.data.forEach(event => {
+            this.events.push({
+                id: event.id,
+                date: this.formatDate(event.eventDate), // 修正字段名称
+                name: event.name,
+                type: event.category,
+                scale: event.scale
+            });
+        });
+
         this.$router.push({ name: 'Home', params: { events: this.events } });
       }).catch(error => {
-        // 错误处理
-        this.$message.error('加载赛事失败，请稍后重试。');
-        console.error('Failed to load events:', error);
+          // 错误处理
+          this.$message.error('加载赛事失败，请稍后重试。');
+          console.error('Failed to load events:', error);
       });
+
     },
     GoToEvent() {
       this.$router.push({ name: "EventList", params: { events: this.events } })

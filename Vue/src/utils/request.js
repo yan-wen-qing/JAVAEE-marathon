@@ -3,7 +3,7 @@ import axios from 'axios'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: 'http://113.44.75.241:5158',
+  baseURL: 'http://localhost:8080',
   timeout: 50000, // request timeout
   //withCredentials: true//携带cookie
   async: true,

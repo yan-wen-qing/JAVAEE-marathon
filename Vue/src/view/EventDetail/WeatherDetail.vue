@@ -6,7 +6,7 @@
           placement="top" size="large">
           <el-card>
             <p><b>气温：</b>{{ weather.temperature }}°C</p>
-            <p><b>天气情况：</b>{{ weather.condition }}</p>
+            <p><b>天气情况：</b>{{ weather.weatherCondition }}</p>
             <p><b>比赛是否能正常进行：</b>{{ weather.whether_To_Proceed === 1 ? '是' : '否' }}</p>
           </el-card>
         </el-timeline-item>
@@ -42,8 +42,8 @@ export default {
         console.log('接口响应:', response); // 打印完整的API响应以便调试
 
         // 检查响应结构并确保是预期的数据格式
-        if (response && Array.isArray(response)) {
-          this.weatherDetails = response; // 将API返回的数据赋值给weatherDetails数组
+        if (response.data && Array.isArray(response.data)) {
+          this.weatherDetails = response.data; // 将API返回的数据赋值给weatherDetails数组
         } else {
           this.$message.error('未收到有效响应数据')
           console.error('Unexpected response structure:', response);

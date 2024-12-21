@@ -9,8 +9,7 @@ import java.util.Map;
 
 public interface ParticipateService extends IService<Participate> {
     void drawLots(Integer eventId, Integer totalParticipants);
-    void submitPacers(Integer eventId, List<Integer> pacerIds);
-    void submitAids(Integer eventId, List<Integer> aidIds);
+    void submitPlayers(Integer eventId, List<Integer> playerIds, String role, String chosenField);
     List<Map<String, Object>> getParticipantsByEventId(Integer eventId);
     List<Map<String, Object>> getPlayerHistory(Integer playerId);
 }

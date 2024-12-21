@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 @Slf4j
@@ -180,37 +181,30 @@ public class ParticipateServiceImpl extends ServiceImpl<ParticipateMapper, Parti
     }
 
     @Override
-    public void submitPacers(Integer eventId, List<Integer> pacerIds) {
+    public void submitPlayers(Integer eventId, List<Integer> playerIds, String role, String chosenField){
         // 更新同一 eventId 下其他原本 role 为 'pacer' 的选手的 role 为 'normal'
         LambdaUpdateWrapper<Participate> normalUpdateWrapper = new LambdaUpdateWrapper<>();
         normalUpdateWrapper.eq(Participate::getEventId, eventId)
-                .eq(Participate::getRole, "pacer")
-                .notIn(Participate::getPlayerId, pacerIds)
+                .eq(Participate::getRole, role)
+                .notIn(Participate::getPlayerId, playerIds)
                 .set(Participate::getRole, "normal");
         participateMapper.update(null, normalUpdateWrapper);
 
         // 更新 event 表，设置 pacer_is_chosen 为 true
         Event event = eventMapper.selectById(eventId);
         if (event != null) {
-            event.setPacerIsChosen(true);
+            try {
+                // 通过反射动态设置字段
+                Field field = Event.class.getDeclaredField(chosenField);
+                field.setAccessible(true);
+                field.set(event, true);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                // 处理异常情况
+                e.printStackTrace();
+            }
             eventMapper.updateById(event);
         }
     }
 
-    @Override
-    public void submitAids(Integer eventId, List<Integer> aidIds) {
-        LambdaUpdateWrapper<Participate> normalUpdateWrapper = new LambdaUpdateWrapper<>();
-        normalUpdateWrapper.eq(Participate::getEventId, eventId)
-                .eq(Participate::getRole, "aid")
-                .notIn(Participate::getPlayerId, aidIds)
-                .set(Participate::getRole, "normal");
-        participateMapper.update(null, normalUpdateWrapper);
-
-        Event event = eventMapper.selectById(eventId);
-        if (event != null) {
-            event.setAidIsChosen(true);
-            eventMapper.updateById(event);
-        }
-    }
 }
 

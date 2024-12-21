@@ -60,7 +60,7 @@ public class EventManagementController {
         try {
             Integer eventId = Integer.valueOf(request.get("eventId").toString());
             List<Integer> pacerIds = (List<Integer>) request.get("pacerIds");
-            participateService.submitPacers(eventId, pacerIds);
+            participateService.submitPlayers(eventId, pacerIds, "pacer", "pacerIsChosen");
             return Result.success("配速员已选拔完成");
         } catch (Exception e) {
             log.error("配速员提交失败: {}", e.getMessage());
@@ -73,7 +73,7 @@ public class EventManagementController {
         try {
             Integer eventId = Integer.valueOf(request.get("eventId").toString());
             List<Integer> aidIds = (List<Integer>) request.get("aidIds");
-            participateService.submitAids(eventId, aidIds);
+            participateService.submitPlayers(eventId, aidIds, "aid", "aidIsChosen");
             return Result.success("急救跑者已选拔完成");
         } catch (Exception e) {
             log.error("急救跑者提交失败: {}", e.getMessage());

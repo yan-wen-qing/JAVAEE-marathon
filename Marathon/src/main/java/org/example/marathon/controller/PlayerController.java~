@@ -54,12 +54,6 @@ public class PlayerController {
         String jwt= JwtUtils.generateJwt(claims);
         return Result.success(jwt);  // 返回 JWT 令牌
     }
-    @GetMapping("/Player/get_by_playerId")
-    public Result getPlayerById(@RequestParam("id") Integer id) {
-        log.info("获取ID为 {} 的用户信息", id);
-        Player player = playerService.getPlayerById(id);
-        return player != null ? Result.success(player) : Result.error("未找到用户信息");
-    }
 
 
 }

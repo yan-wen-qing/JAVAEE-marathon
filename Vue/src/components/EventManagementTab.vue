@@ -53,10 +53,12 @@ export default {
   methods: {
     async loadEventStatus() {
       try {
+        console.log(this.eventId)
         const response = await fetchEventById(this.eventId);
-        this.IsLottery = response.isDrawn === true;
-        this.PacerIsChosen = response.pacerIsChosen === true;
-        this.AidIsChosen = response.aidIsChosen === true;
+        console.log(this.eventId)
+        this.IsLottery = response.data.isDrawn === true;
+        this.PacerIsChosen = response.data.pacerIsChosen === true;
+        this.AidIsChosen = response.data.aidIsChosen === true;
       } catch (error) {
         console.error('获取赛事状态失败:', error);
       }
@@ -80,6 +82,7 @@ export default {
   },
   created() {
     this.loadEventStatus();
+    console.log(1);
     this.ActiveIndex(this.ActiveIndexForEventManagementTab);
   },
 };

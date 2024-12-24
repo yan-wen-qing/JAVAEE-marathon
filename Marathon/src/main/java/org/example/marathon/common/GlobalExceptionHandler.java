@@ -19,9 +19,9 @@ public class GlobalExceptionHandler {
         return Result.error("参数错误：" + e.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public Result handleException(Exception e) {
-        log.error("系统异常", e);
-        return Result.error("系统异常");
-    }
+   @ExceptionHandler(Exception.class)
+   public Result handleException(Exception e) {
+       log.error("系统异常", e);
+       return Result.error("系统异常");
+   }
 }

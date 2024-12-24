@@ -19,20 +19,20 @@
         <!-- 比赛成绩表格 -->
         <div>
           <el-table :data="paginatedResults" v-loading='loading' class="table" row-class-name="clickable-row" stripe>
-            <el-table-column prop="event_Name" label="比赛名称" width="325"></el-table-column>
-            <el-table-column prop="type" label="枪声成绩" width="150">
+            <el-table-column prop="eventName" label="比赛名称" width="325"></el-table-column>
+            <el-table-column prop="gunResult" label="枪声成绩" width="150">
               <template slot-scope="scope">
-                <div style="font-weight: bold;">{{ formatSeconds(scope.row.gun_Result) }}</div>
+                <div style="font-weight: bold;">{{ formatSeconds(scope.row.gunResult) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="net_Result" label="净成绩" width="150">
+            <el-table-column prop="netResult" label="净成绩" width="150">
               <template slot-scope="scope">
-                <div style="font-weight: bold;">{{ formatSeconds(scope.row.net_Result) }}</div>
+                <div style="font-weight: bold;">{{ formatSeconds(scope.row.netResult) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="rank" label="性别排名" width="125">
+            <el-table-column prop="genderRank" label="性别排名" width="125">
               <template slot-scope="scope">
-                <div style="font-weight: bold;">{{ scope.row.gender_Rank }}</div>
+                <div style="font-weight: bold;">{{ scope.row.genderRank }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="rank" label="总排名" width="125">
@@ -79,13 +79,20 @@ export default {
       try {
         const Player_ID = localStorage.getItem('UserId');
         const response = await getMyResults(Player_ID);
-        console.log(111, response)
-        this.results = response; // 假设 API 返回的数据在 data 属性中
-        this.filteredResults = this.results; // 初始化筛选结果
-        this.loading = false
+        if (response.code === 1) {
+          this.results = response.data;  // 获取 data 数组
+          this.filteredResults = this.results;
+          this.loading = false;
+          this.Flag = true;
+        } else {
+          console.error('获取数据失败:', response);
+          this.loading = false;
+          this.Flag = false;
+        }
       } catch (error) {
         console.error('获取比赛成绩失败:', error);
-        this.Flag = false
+        this.loading = false;
+        this.Flag = false;
       }
     },
     search() {
@@ -93,7 +100,7 @@ export default {
       if (query) {
         // 根据搜索框输入的内容搜索
         this.filteredResults = this.results.filter(result =>
-          result.event_Name.includes(query) || result.event_ID === query
+          result.eventName.toLowerCase().includes(query.toLowerCase())
         );
       } else {
         // 如果搜索框为空，显示所有成绩
@@ -107,6 +114,7 @@ export default {
 
       try {
         let response;
+        console.log(1222, type);
         const Player_ID = localStorage.getItem('UserId'); // 保持一致的 Player_ID
         if (type === 'full') {
           response = await getFullResults(Player_ID); // 获取全马成绩

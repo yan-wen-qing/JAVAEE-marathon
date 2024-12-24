@@ -7,7 +7,7 @@
           <el-card>
             <p><b>气温：</b>{{ weather.temperature }}°C</p>
             <p><b>天气情况：</b>{{ weather.weatherCondition }}</p>
-            <p><b>比赛是否能正常进行：</b>{{ weather.whether_To_Proceed === 1 ? '是' : '否' }}</p>
+            <p><b>比赛是否能正常进行：</b>{{ weather.whetherToProceed === 1 ? '是' : '否' }}</p>
           </el-card>
         </el-timeline-item>
       </el-timeline>

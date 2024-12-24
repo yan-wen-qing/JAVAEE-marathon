@@ -40,15 +40,8 @@
           <p class="UserInfoTextContent" v-if="!isEdit && newRegion !== ''">{{ newRegion }}</p>
           <div class="UserInfoTextContent" v-if="isEdit">
             <div style="margin: 10px 0;">
-              <label for="province" class="UserInfoTextForProvince">省份：</label>
-              <el-select v-model="selectedProvince" @change="updateCities" placeholder="请选择" size="mini">
+              <el-select v-model="selectedProvince" placeholder="请选择" size="mini">
                 <el-option v-for="province in provinces" :key="province" :value="province"></el-option>
-              </el-select>
-            </div>
-            <div>
-              <label for="province" class="UserInfoTextForCity">城市：</label>
-              <el-select v-model="selectedCity" placeholder="请选择" size="mini">
-                <el-option v-for="city in cities" :key="city" :value="city"></el-option>
               </el-select>
             </div>
           </div>
@@ -88,61 +81,43 @@ export default {
         '广东省', '海南省', '四川省', '贵州省', '云南省', '陕西省', '甘肃省', '青海省',
         '内蒙古自治区', '广西壮族自治区', '西藏自治区', '宁夏回族自治区', '新疆维吾尔自治区'
       ],
-      allCities: {
-        北京市: ['北京'],
-        天津市: ['天津'],
-        上海市: ['上海'],
-        重庆市: ['重庆'],
-        河北省: ['石家庄', '唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德', '沧州', '廊坊', '衡水'],
-        山西省: ['太原', '大同', '阳泉', '长治', '晋城', '朔州', '晋中', '运城', '忻州', '临汾', '吕梁'],
-        辽宁省: ['沈阳', '大连', '鞍山', '抚顺', '本溪', '丹东', '锦州', '营口', '阜新', '辽阳', '盘锦', '铁岭', '朝阳', '葫芦岛'],
-        吉林省: ['长春', '吉林', '四平', '辽源', '通化', '白山', '松原', '白城', '延边朝鲜族自治州'],
-        黑龙江省: ['哈尔滨', '齐齐哈尔', '鸡西', '鹤岗', '双鸭山', '大庆', '伊春', '佳木斯', '七台河', '牡丹江', '黑河', '绥化', '大兴安岭'],
-        江苏省: ['南京', '无锡', '徐州', '常州', '苏州', '南通', '连云港', '淮安', '盐城', '扬州', '镇江', '泰州', '宿迁'],
-        浙江省: ['杭州', '宁波', '温州', '嘉兴', '湖州', '绍兴', '金华', '衢州', '舟山', '台州', '丽水'],
-        安徽省: ['合肥', '芜湖', '蚌埠', '淮南', '马鞍山', '淮北', '铜陵', '安庆', '黄山', '滁州', '阜阳', '宿州', '巢湖', '六安', '亳州', '池州', '宣城'],
-        福建省: ['福州', '厦门', '莆田', '三明', '泉州', '漳州', '南平', '龙岩', '宁德'],
-        江西省: ['南昌', '景德镇', '萍乡', '九江', '新余', '鹰潭', '赣州', '吉安', '宜春', '抚州', '上饶'],
-        山东省: ['济南', '青岛', '淄博', '枣庄', '东营', '烟台', '潍坊', '济宁', '泰安', '威海', '日照', '莱芜', '临沂', '德州', '聊城', '滨州', '菏泽'],
-        河南省: ['郑州', '开封', '洛阳', '平顶山', '安阳', '鹤壁', '新乡', '焦作', '濮阳', '许昌', '漯河', '三门峡', '南阳', '商丘', '信阳', '周口', '驻马店', '济源'],
-        湖北省: ['武汉', '黄石', '十堰', '宜昌', '襄阳', '鄂州', '荆门', '孝感', '荆州', '黄冈', '咸宁', '随州', '恩施土家族苗族自治州', '仙桃', '潜江', '天门', '神农架'],
-        湖南省: ['长沙', '株洲', '湘潭', '衡阳', '邵阳', '岳阳', '常德', '张家界', '益阳', '郴州', '永州', '怀化', '娄底', '湘西土家族苗族自治州'],
-        广东省: ['广州', '深圳', '珠海', '汕头', '韶关', '佛山', '江门', '湛江', '茂名', '肇庆', '惠州', '梅州', '汕尾', '河源', '阳江', '清远', '东莞', '中山', '潮州', '揭阳', '云浮'],
-        海南省: ['海口', '三亚', '三沙', '儋州'],
-        四川省: ['成都', '自贡', '攀枝花', '泸州', '德阳', '绵阳', '广元', '遂宁', '内江', '乐山', '南充', '眉山', '宜宾', '广安', '达州', '雅安', '巴中', '资阳', '阿坝藏族羌族自治州', '甘孜藏族自治州', '凉山彝族自治州'],
-        贵州省: ['贵阳', '六盘水', '遵义', '安顺', '毕节', '铜仁', '黔西南布依族苗族自治州', '黔东南苗族侗族自治州', '黔南布依族苗族自治州'],
-        云南省: ['昆明', '曲靖', '玉溪', '保山', '昭通', '丽江', '普洱', '临沧', '楚雄彝族自治州', '红河哈尼族彝族自治州', '文山壮族苗族自治州', '西双版纳傣族自治州', '大理白族自治州', '德宏傣族景颇族自治州', '怒江傈僳族自治州', '迪庆藏族自治州'],
-        陕西省: ['西安', '铜川', '宝鸡', '咸阳', '渭南', '延安', '汉中', '榆林', '安康', '商洛'],
-        甘肃省: ['兰州', '嘉峪关', '金昌', '白银', '天水', '武威', '张掖', '平凉', '酒泉', '庆阳', '定西', '陇南', '临夏回族自治州', '甘南藏族自治州'],
-        青海省: ['西宁', '海东', '海北藏族自治州', '黄南藏族自治州', '海南藏族自治州', '果洛藏族自治州', '玉树藏族自治州', '海西蒙古族藏族自治州'],
-        内蒙古自治区: ['呼和浩特', '包头', '乌海', '赤峰', '通辽', '鄂尔多斯', '呼伦贝尔', '巴彦淖尔', '乌兰察布', '兴安盟', '锡林郭勒盟', '阿拉善盟'],
-        广西壮族自治区: ['南宁', '柳州', '桂林', '梧州', '北海', '防城港', '钦州', '贵港', '玉林', '百色', '贺州', '河池', '来宾', '崇左'],
-        西藏自治区: ['拉萨', '日喀则', '昌都', '林芝', '山南', '那曲', '阿里'],
-        宁夏回族自治区: ['银川', '石嘴山', '吴忠', '固原', '中卫'],
-        新疆维吾尔自治区: ['乌鲁木齐', '克拉玛依', '吐鲁番', '哈密', '昌吉回族自治州', '博尔塔拉蒙古自治州', '巴音郭楞蒙古自治州', '阿克苏地区', '克孜勒苏柯尔克孜自治州', '喀什地区', '和田地区', '伊犁哈萨克自治州', '塔城地区', '阿勒泰地区', '石河子', '阿拉尔', '图木舒克', '五家渠', '铁门关']
-      },
-      selectedProvince: '',
-      selectedCity: ''
+      selectedProvince: ''
     }
   },
   mounted() {
-    this.ID = localStorage.getItem('UserId')
+    const userId = localStorage.getItem('UserId');
+    if (!userId) {
+      this.$message.error('未找到用户ID');
+      return;
+    }
+    this.ID = parseInt(userId);
+    
     getInfor(this.ID)
-      .then((res) => {
-        this.name = res.Name;
-        this.oldTelephone = res.Telephone_Number;
-        this.newTelephone = res.Telephone_Number;
-        this.ID_number = res.Id_Number;
-        this.gender = res.Gender;
-        this.oldAge = res.Age;
-        this.oldRegion = res.Region;
-        this.newAge = res.Age;
-        this.newRegion = res.Region;
-        this.Password = res.Password
+      .then(res => {
+        if (res.code === 1 && res.data) {
+          const data = res.data;
+          this.name = data.name;
+          this.oldTelephone = data.telephoneNumber;
+          this.newTelephone = data.telephoneNumber;
+          this.ID_number = data.idNumber;
+          this.gender = data.gender;
+          this.oldAge = data.age;
+          this.newAge = data.age;
+          this.oldRegion = data.region;
+          this.newRegion = data.region;
+          this.Password = data.password;
+          
+          if (data.region) {
+            this.selectedProvince = data.region;
+          }
+        } else {
+          console.error('响应数据格式错误:', res);
+          this.$message.error(res.msg || '获取用户数据失败');
+        }
       })
       .catch(error => {
         console.error('查询失败:', error);
-        alert('查询失败');
+        this.$message.error(error.message || '查询失败');
       });
   },
   methods: {
@@ -157,7 +132,7 @@ export default {
         //二层：编辑的内容合规
         if (this.isTelephone && this.isAge) {
           //三层：没有改变数据
-          if (this.oldTelephone === this.telephone && this.oldRegion === this.region && this.old_age === this.age) {
+          if (this.oldTelephone === this.newTelephone && this.oldRegion === this.newRegion && this.oldAge === this.newAge) {
             this.buttonText = '编辑'
             this.isEdit = false
           }
@@ -167,10 +142,10 @@ export default {
               confirmButtonText: "确定",
               cancelButtonText: "取消 ",
               type: "warning",
-              distinguishCancelAndClose: true,    // 重要，设置为true才会把右上角X和取消区分开来
+              distinguishCancelAndClose: true,
               closeOnClickModal: false
             }).then(() => {
-              // 确认通过执行逻辑        A按钮逻辑
+              // 确认通过执行逻辑
               this.oldTelephone = this.newTelephone;
               this.oldRegion = this.newRegion;
               this.oldAge = this.newAge;
@@ -180,7 +155,7 @@ export default {
               this.isEdit = false
             }).catch((e) => {
               if (e == 'cancel') {
-                // 确认不通过执行逻辑   B按钮逻辑
+                // 确认不通过执行逻辑
               } else if (e == 'close') {
                 // 右上角X的执行逻辑 
               }
@@ -193,10 +168,10 @@ export default {
             confirmButtonText: "返回更改",
             cancelButtonText: "取消",
             type: "warning",
-            distinguishCancelAndClose: true,    // 重要，设置为true才会把右上角X和取消区分开来
+            distinguishCancelAndClose: true,
             closeOnClickModal: false
           }).then(() => {
-            // 确认通过执行逻辑        A按钮逻辑
+            // 确认通过执行逻辑
             // 保存当前编辑的数据
             this.newTelephone = this.oldTelephone;
             this.newRegion = this.oldRegion;
@@ -205,7 +180,7 @@ export default {
             this.isEdit = false
           }).catch((e) => {
             if (e == 'cancel') {
-              // 确认不通过执行逻辑   B按钮逻辑
+              // 确认不通过执行逻辑
             } else if (e == 'close') {
               // 右上角X的执行逻辑 
             }
@@ -214,31 +189,45 @@ export default {
       }
     },
     submit() {
-      try {
-        completeInfor({ Id: this.ID, Name: this.name, Gender: this.gender, Age: this.newAge, Region: this.newRegion, Telephone_Number: this.newTelephone, Id_Number: this.ID_number, Password: this.Password }).then((res) => {
-          if (res.data === false) {
-            this.$message.error("提交失败，请重试");
-          } else {
-            this.$message.success("提交成功");
-          }
-        })
-      } catch (error) {
-        console.error(error);
-        this.$message.error('提交失败，请重试');
+      this.loading = true;
+      const submitData = {
+        id: parseInt(this.ID),
+        name: this.name,
+        gender: this.gender,
+        age: parseInt(this.newAge),
+        id_number: this.ID_number,
+        region: this.newRegion,
+        telephone_number: this.newTelephone,
+        password: this.Password
+      };
+      
+      if (!submitData.id) {
+        this.$message.error('用户ID不能为空');
+        this.loading = false;
+        return;
       }
-    },
-    updateCities() {
-      if (this.cities.length > 0) {
-        this.selectedCity = this.cities[0]
-      } else {
-        this.selectedCity = ''
-      }
+      
+      console.log('提交到后端的数据:', submitData);
+      
+      completeInfor(submitData).then((res) => {
+        if (res.code === 1) {
+          console.log('后端响应:', res);
+          this.$message.success("提交成功");
+          this.oldTelephone = this.newTelephone;
+          this.oldAge = this.newAge;
+          this.oldRegion = this.newRegion;
+        } else {
+          this.$message.error(res.msg || '提交失败');
+        }
+      }).catch(error => {
+        console.error('提交失败:', error);
+        this.$message.error(error.message || '提交失败');
+      }).finally(() => {
+        this.loading = false;
+      });
     },
   },
   computed: {
-    cities() {
-      return this.allCities[this.selectedProvince] || []
-    },
   },
   watch: {
     newTelephone(telephone) {
@@ -262,10 +251,7 @@ export default {
         this.isAge = true;
     },
     selectedProvince() {
-      this.newRegion = this.selectedProvince + '    ' + this.selectedCity;
-    },
-    selectedCity() {
-      this.newRegion = this.selectedProvince + '    ' + this.selectedCity;
+      this.newRegion = this.selectedProvince;
     }
   },
 }

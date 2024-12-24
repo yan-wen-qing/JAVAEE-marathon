@@ -10,7 +10,7 @@
         <div style="width: 100%; overflow: auto ;height: 100%;margin-top: 20px;">
           <el-table :data="paginatedResults" v-loading='loading' class="table" row-class-name="clickable-row" stripe>
             <el-table-column prop="name" label="比赛名称" width="300"></el-table-column>
-            <el-table-column prop="event_Date" label="开赛时间" width="175"></el-table-column>
+            <el-table-column prop="eventDate" label="开赛时间" width="175"></el-table-column>
             <el-table-column prop="category" label="赛事类型" width="125"></el-table-column>
             <el-table-column prop="result" label="结果" width="150">
               <template slot-scope="scope">
@@ -53,16 +53,21 @@ export default {
     this.ID = localStorage.getItem('UserId')
     getMyRegistrations(this.ID)
       .then((res) => {
-        // 调用处理函数，将每个赛事的result字段进行相应处理
-        this.processEvents(res);
-        this.loading = false
+        if (res.code === 1 && Array.isArray(res.data)) {
+          // 确保 res.data 是数组后再处理
+          this.processEvents(res.data);
+        } else {
+          console.error('返回数据格式错误:', res);
+          this.Flag = false;
+        }
+        this.loading = false;
       })
       .catch(error => {
         console.error(error)
         this.$message.error('查询失败');
-        this.Flag = false
+        this.Flag = false;
+        this.loading = false;
       });
-
   },
   data() {
     return {
@@ -90,22 +95,23 @@ export default {
       this.currentPage = page;
     },
     async processEvents(events) {
-      this.events = await Promise.all(events.map(async (event) => {
-        /*
-        if (event.is_Drawn === "否") {
-          // 如果 is_Drawn 为 "否"，直接设置 result 为 "未抽签"
-          event.result = "未抽签";
-        } else {
-          // 否则从数据库获取 result 值
-          event.result = await this.getResultFromAPI(this.ID, event.id);
+      try {
+        if (!Array.isArray(events)) {
+          console.error('events 不是数组:', events);
+          this.events = [];
+          return;
         }
-        */
-        event.result = await this.getResultFromAPI(this.ID, event.id);
-        return event;
-      }));
 
-      // 打印或使用处理后的数据
-      console.log('处理后的赛事数据:', this.events);
+        this.events = await Promise.all(events.map(async (event) => {
+          event.result = await this.getResultFromAPI(this.ID, event.id);
+          return event;
+        }));
+
+        console.log('处理后的赛事数据:', this.events);
+      } catch (error) {
+        console.error('处理赛事数据时出错:', error);
+        this.events = [];
+      }
     },
     getResultFromAPI(playerId, eventId) {
       // 使用 API 查询具体的 result 值

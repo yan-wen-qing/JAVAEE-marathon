@@ -3,10 +3,11 @@ export function getInfor(Id) {
     return request({
         url: '/Auth/get_by_playerid',
         method: 'get',
-        params: {
-            Id: Id
-        }
-    })
+        params: { Id }
+    }).catch(error => {
+        console.error('获取用户信息失败:', error);
+        return Promise.reject(error);
+    });
 }
 
 export function getPhotographerInfor(Id) {

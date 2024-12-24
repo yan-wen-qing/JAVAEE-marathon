@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated; // 用于验证参数合理性
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -99,7 +99,7 @@ public class UserCenterController {
     public Result getHalfResults(@RequestParam @NotNull(message = "用户ID不能为空") Integer playerId) {
         try {
             log.info("查询用户半马成绩: {}", playerId);
-            List<PlayerResultVO> results = playerResultService.getResultsByCategory(playerId, "半程马拉松");
+            List<PlayerResultVO> results = playerResultService.getResultsByCategory(playerId, "半马");
             return Result.success(results);
         } catch (Exception e) {
             log.error("查询半马成绩失败", e);
@@ -111,7 +111,7 @@ public class UserCenterController {
     public Result getFullResults(@RequestParam @NotNull(message = "用户ID不能为空") Integer playerId) {
         try {
             log.info("查询用户全马成绩: {}", playerId);
-            List<PlayerResultVO> results = playerResultService.getResultsByCategory(playerId, "全程马拉松");
+            List<PlayerResultVO> results = playerResultService.getResultsByCategory(playerId, "全马");
             return Result.success(results);
         } catch (Exception e) {
             log.error("查询全马成绩失败", e);

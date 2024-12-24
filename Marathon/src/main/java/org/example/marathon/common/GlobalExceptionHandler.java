@@ -1,10 +1,11 @@
 package org.example.marathon.common;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.marathon.domain.Result;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 
 @Slf4j
 @RestControllerAdvice

@@ -23,15 +23,15 @@ export function completeInfor(params) {
     return request({
       url: '/Auth/update_player',
       method: 'patch',
-      data:{
-        Id:params.Id,
-        Name:params.Name,
-        Gender:params.Gender,
-        Age:params.Age,
-        Id_Number:params.Id_Number,
-        Region:params.Region,
-        Telephone_Number:params.Telephone_Number,
-        Password:params.Password,
+      data: {
+        id: params.id,
+        name: params.name,
+        gender: params.gender,
+        age: params.age,
+        id_number: params.id_number,
+        region: params.region,
+        telephone_number: params.telephone_number,
+        password: params.password
       }
     })
 }

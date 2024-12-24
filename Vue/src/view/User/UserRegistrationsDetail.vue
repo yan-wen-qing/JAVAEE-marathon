@@ -14,18 +14,21 @@
             </div>
             <div class="AidStationItem">
               <span style="width: 30%;font-weight: bold;">开赛时间：</span><span>
-                {{ event.event_Date }}</span>
+                {{ formatDate(event.eventDate) }}</span>
             </div>
             <div class="AidStationItem">
-              <span style="width: 30%;font-weight: bold;">赛事规模：</span><span>
-                {{ event.scale }}</span>
+              <span style="width: 30%;font-weight: bold;">赛事规模：</span>
+              <span>{{ event.scale || '暂无数据' }}</span>
             </div>
             <div class="AidStationItem" style="width: 250px;">
               <span style="width: 100%;font-weight: bold;">参赛号码：
-                <span v-if="event.result.response === '已中签'" style="margin-left: 15px;">
-                  {{ event.result.eventNumber }}</span>
-                <span v-else style="margin-left: 15px;font-weight: bold;color:rgb(175,175,175);">
-                  {{ event.result.eventNumber }}</span>
+                <span v-if="event.result && event.result.response === '已中签'" 
+                      style="margin-left: 15px;color: #c81623;">
+                  {{ event.result.eventNumber }}
+                </span>
+                <span v-else style="margin-left: 15px;color: rgb(175,175,175);">
+                  {{ event.result ? event.result.eventNumber : '暂无号码' }}
+                </span>
               </span>
             </div>
             <div class="AidStationItem">
@@ -47,35 +50,47 @@
 export default {
   name: 'UserRegistrationsDetail',
   props: {
-    event: Object
+    event: {
+      type: Object,
+      required: true
+    }
   },
   data() {
     return {
       dialogTableVisible: true
     };
   },
-
+  created() {
+    // 添加日志来查看传入的数据
+    console.log('接收到的赛事数据:', this.event);
+  },
   methods: {
     handleClose() {
-      this.dialogTableVisible = false
+      this.$emit('close');
+      this.dialogTableVisible = false;
     },
-    aidStationChange(res) {
-      if (res === 1)
-        return "已分工"
-      else
-        return "未分工"
+    formatDate(date) {
+      if (!date) return '暂无日期';
+      // 如果需要，这里可以添加日期格式化逻辑
+      return date;
     },
-    isScheduledChange(res) {
-      if (res)
-        return '已排班'
-      else
-        return '未排班'
+    formatPacerStatus(status) {
+      if (status === true || status === 1) return '是';
+      if (status === false || status === 0) return '否';
+      return '未知';
     },
-    jobCategoryChange(res) {
-      if (res === '未排班')
-        return '未分配'
-      else
-        return res
+    formatAidStatus(status) {
+      if (status === true || status === 1) return '是';
+      if (status === false || status === 0) return '否';
+      return '未知';
+    }
+  },
+  watch: {
+    event: {
+      immediate: true,
+      handler(newVal) {
+        console.log('event 数据变化:', newVal);
+      }
     }
   }
 }

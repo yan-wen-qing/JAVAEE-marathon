@@ -8,7 +8,7 @@
     <div style="width: 100%;" v-else>
       <el-main>
         <div style="width: 100%; overflow: auto ;height: 100%;margin-top: 20px;">
-          <el-table :data="paginatedResults" v-loading='loading' class="table" row-class-name="clickable-row" stripe>
+          <el-table :data="paginatedResults" v-loading='loading' class="table" stripe>
             <el-table-column prop="name" label="比赛名称" width="300"></el-table-column>
             <el-table-column prop="eventDate" label="开赛时间" width="175"></el-table-column>
             <el-table-column prop="category" label="赛事类型" width="125"></el-table-column>
@@ -23,12 +23,6 @@
                   {{ scope.row.result.response }}</div>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="100">
-              <template slot-scope="scope">
-                <span style="font-size: 14px;color: rgb(64, 158, 255);font-weight: bold;"
-                  @click="handleRowClick(scope.row)">详情</span>
-              </template>
-            </el-table-column>
           </el-table>
           <el-pagination v-if="events.length > 0" background layout="prev, pager, next" :total="events.length"
             :page-size="pageSize" :current-page.sync="currentPage" @current-change="handlePageChange"
@@ -37,18 +31,13 @@
         </div>
       </el-main>
     </div>
-    <UserRegistrationsDetail :event="selectedEvent" v-if="dialogVisible" @close="dialogVisible = false" />
   </div>
 </template>
 <script>
-import UserRegistrationsDetail from './UserRegistrationsDetail.vue';
 import { getMyRegistrations } from '@/api/UserCenter.js'
 import { getEventInfo } from '@/api/UserCenter.js'
 export default {
   name: 'UserRegistrations',
-  components: {
-    UserRegistrationsDetail
-  },
   mounted() {
     this.ID = localStorage.getItem('UserId')
     getMyRegistrations(this.ID)
@@ -75,22 +64,13 @@ export default {
       activeMenu: '2',
       searchName: '',
       events: [],
-      selectedEvent: null,
       currentPage: 1,
       pageSize: 8,
       loading: true,
       Flag: true,
-      dialogVisible: false
     }
   },
   methods: {
-    handleRowClick(event) {
-      this.selectedEvent = event;  // Set the selected event
-      this.dialogVisible = false;  // 先关闭对话框
-      this.$nextTick(() => {       // 等待 DOM 完全更新后再打开对话框
-        this.dialogVisible = true; // 重新显示子组件
-      });
-    },
     handlePageChange(page) {
       this.currentPage = page;
     },

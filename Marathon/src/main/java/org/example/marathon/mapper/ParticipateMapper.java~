@@ -1,0 +1,4 @@
+package org.example.marathon.mapper;
+
+public class ParticipateMapper {
+}

@@ -1,0 +1,4 @@
+package org.example.marathon.service;
+
+public interface WeatherService {
+}

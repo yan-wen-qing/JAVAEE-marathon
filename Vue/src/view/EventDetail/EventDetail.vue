@@ -22,23 +22,27 @@
         <div class="EventDetailContainerInfoOne">
           <div class="EventDetailContainerInfoItem">
             <img src="@/assets/images/location.png" alt="Event Image" class="EventDetailContainerIcon">
-            <span><span>赛事名称：</span>{{ event.Name }}</span>
+            <span><span>赛事名称：</span>{{ event.name }}</span>
           </div>
           <div class="EventDetailContainerInfoItem">
             <img src="@/assets/images/location.png" alt="Event Image" class="EventDetailContainerIcon">
-            <span><span>赛事类型：</span>{{ event.Category }}</span>
+            <span><span>赛事类型：</span>{{ event.category }}</span>
           </div>
           <div class="EventDetailContainerInfoItem">
             <img src="@/assets/images/location.png" alt="Event Image" class="EventDetailContainerIcon">
-            <span><span>报名开始时间：</span>{{ event.Start_Date }}</span>
+            <span><span>报名开始时间：</span>{{ event.startDate }}</span>
           </div>
           <div class="EventDetailContainerInfoItem">
             <img src="@/assets/images/location.png" alt="Event Image" class="EventDetailContainerIcon">
-            <span><span>报名结束时间：</span>{{ event.End_Date }}</span>
+            <span><span>报名结束时间：</span>{{ event.endDate }}</span>
           </div>
           <div class="EventDetailContainerInfoItem">
             <img src="@/assets/images/location.png" alt="Event Image" class="EventDetailContainerIcon">
-            <span><span>正式比赛时间：</span>{{ event.Event_Date }}</span>
+            <span><span>正式比赛时间：</span>{{ event.eventDate }}</span>
+          </div>
+          <div class="EventDetailContainerInfoItem">
+            <img src="@/assets/images/location.png" alt="Event Image" class="EventDetailContainerIcon">
+            <span><span>赛事规模：</span>{{ event.scale }}</span>
           </div>
         </div>
         <div class="EventDetailContainerInfoTwo">
@@ -62,7 +66,7 @@
 </template>
 
 <script>
-import { fetchEventDetails } from '@/api/EventDetails';
+import { fetchEventById } from '@/api/Event';
 import WeatherDetailsModal from './WeatherDetail.vue';
 
 export default {
@@ -79,7 +83,6 @@ export default {
   },
   components: {
     WeatherDetailsModal,
-    
   },
   watch: {
     '$route.params.id': {
@@ -94,14 +97,13 @@ export default {
     async loadEvent() {
       this.eventId = this.$route.params.event_id;
       try {
-        console.log('请求的 URL:', `http://113.44.75.241:5158/Event/get_by_id?Id=${this.eventId}`);
-        const res = await fetchEventDetails(this.eventId);
+        const res = await fetchEventById(this.eventId);
         console.log('接口响应:', res);
 
         if (res) {
-          this.event = res.Event; // 获取赛事详情
-          this.weatherDetails = res.weather; // 获取天气详情
-          this.EventCount = Date.now() + (new Date(this.event.End_Date) - Date.now())
+          this.event = res.data; // 获取赛事详情
+          
+          this.EventCount = Date.now() + (new Date(this.event.endDate) - Date.now())
         } else {
           this.$message.error('未收到有效响应数据')
           throw new Error('未收到有效响应数据');
@@ -116,59 +118,6 @@ export default {
     },
     closeWeatherModal() {
       this.showWeatherModal = false;
-    },
-    openMedicalModal() {
-      this.showMedicalModal = false;  // 先设置为 false
-      this.$nextTick(() => {
-        this.showMedicalModal = true; // 再设置为 true，确保弹窗能正确打开
-      });
-    },
-    closeMedicalModal() {
-      this.showMedicalModal = false;
-    },
-    openPackageModal() {
-      // 加载物资详情逻辑
-      this.showPackageModal = false;  // 先设置为 false
-      this.$nextTick(() => {
-        this.showPackageModal = true; // 再设置为 true，确保弹窗能正确打开
-      });
-    },
-    closePackageModal() {
-      this.showPackageModal = false;
-    },
-    openShuttleModal() {
-      // 加载接驳车详情逻辑
-      this.showShuttleModal = false;  // 先设置为 false
-      this.$nextTick(() => {
-        this.showShuttleModal = true; // 再设置为 true，确保弹窗能正确打开
-      });
-    },
-    closeShuttleModal() {
-      this.showShuttleModal = false;
-    },
-    openSupplypointModal() {
-      // 加载补给点详情逻辑
-      this.showSupplypointModal = false;  // 先设置为 false
-      this.$nextTick(() => {
-        this.showSupplypointModal = true; // 再设置为 true，确保弹窗能正确打开
-      });
-    },
-    closeSupplypointModal() {
-      this.showSupplypointModal = false;
-    },
-    openVolunteerSignupModal() {
-      const userRole = localStorage.getItem('UserRole');
-      if (userRole !== 'Athlete') {
-        this.$message.warning('您的身份无法报名志愿者');
-        return;
-      }
-      this.showVolunteerSignupModal = false
-      this.$nextTick(() => {
-        this.showVolunteerSignupModal = true; // 再设置为 true，确保弹窗能正确打开
-      });
-    },
-    closeVolunteerSignupModal() {
-      this.showVolunteerSignupModal = false
     },
     GoToEventRegistration() {
       this.$router.push({ name: 'EventRegistration', params: { event_id: this.eventId } });

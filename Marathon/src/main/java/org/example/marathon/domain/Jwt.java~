@@ -1,0 +1,2 @@
+package org.example.marathon.domain;public class Jwt {
+}

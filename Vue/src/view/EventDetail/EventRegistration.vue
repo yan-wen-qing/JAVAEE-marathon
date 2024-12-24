@@ -19,12 +19,11 @@
         <el-form-item label="联系方式："><span>{{ participant.contact }}</span> </el-form-item>
         <el-form-item label="参赛身份：" prop="role">
           <el-select v-model="participant.role" placeholder="请选择参赛身份">
-            <el-option label="配速员" value="配速员"></el-option>
-            <el-option label="精英" value="精英"></el-option>
-            <el-option label="普通跑者" value="普通跑者"></el-option>
-            <el-option label="慈善跑者" value="慈善跑者"></el-option>
-            <el-option label="急救跑者" value="急救跑者"></el-option>
-          </el-select>
+          <el-option label="配速员" value="pacer"></el-option>
+          <el-option label="普通跑者" value="normal"></el-option>
+          <el-option label="慈善跑者" value="charity"></el-option>
+          <el-option label="急救跑者" value="aid"></el-option>
+        </el-select>
         </el-form-item>
       </el-form>
       <div class="button-group">
@@ -113,14 +112,14 @@ export default {
       try {
         const response = await getParticipantInfo(playerId);
         console.log('加载的选手信息:', response);
-        if (response) {
+        if (response.data) {
           this.participant = {
-            name: response.Name,
-            gender: response.Gender,
-            age: response.Age,
-            idCard: response.Id_Number,
-            region: response.Region,
-            contact: response.Telephone_Number
+            name: response.data.name,
+            gender: response.data.gender,
+            age: response.data.age,
+            idCard: response.data.idNumber,
+            region: response.data.region,
+            contact: response.data.telephoneNumber
           };
           this.selectedProvince = this.participant.region; // 设置省份
         } else {
@@ -153,9 +152,9 @@ export default {
       try {
         // 创建一个包含只需要提交的字段的对象
         const registrationData = {
-          role_: this.participant.role,
-          player_Id: playerId,
-          Event_Id: eventId // 这里可以动态设置 event_Id
+          role: this.participant.role,
+          playerId: playerId,
+          eventId: eventId // 这里可以动态设置 event_Id
         };
 
         // 提交报名信息

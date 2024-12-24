@@ -8,8 +8,8 @@
         <el-form-item style="margin-top: 50px;" prop="name">
           <el-input v-model="LoginIndexForm.name" placeholder="请输入姓名"></el-input>
         </el-form-item>
-        <el-form-item style="margin-top: 25px; margin-bottom: 25px;" prop="Id_Number">
-          <el-input v-model="LoginIndexForm.Id_Number" placeholder="请输入身份证号"></el-input>
+        <el-form-item style="margin-top: 25px; margin-bottom: 25px;" prop="idNumber">
+          <el-input v-model="LoginIndexForm.idNumber" placeholder="请输入身份证号"></el-input>
           <div v-if="idNumberError" class="ErrorMessage">{{ idNumberError }}</div>
         </el-form-item>
         <el-form-item style="margin-top: 25px; margin-bottom: 25px;" prop="password">
@@ -55,7 +55,7 @@ export default {
     return {
       LoginIndexForm: {
         name: '',
-        Id_Number: '',
+        idNumber: '',
         password: '',
         confirmPassword: '',
         gender: '',
@@ -68,7 +68,7 @@ export default {
           { required: true, message: '请输入名字', trigger: 'blur' },
           { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ],
-        Id_Number: [
+        idNumber: [
           { required: true, message: '请输入身份证号', trigger: 'number' },
         ],
         password: [
@@ -86,7 +86,7 @@ export default {
   methods: {
     validateIdNumber() {
       const idNumberPattern = /^[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}(\d|X)$/;
-      if (!idNumberPattern.test(this.LoginIndexForm.Id_Number)) {
+      if (!idNumberPattern.test(this.LoginIndexForm.idNumber)) {
         this.idNumberError = '身份证格式不正确';
         setTimeout(() => {
           this.idNumberError = ''
@@ -108,7 +108,7 @@ export default {
     },
     calculateAge() {
       const currentYear = 2024;
-      const birthYear = parseInt(this.LoginIndexForm.Id_Number.slice(6, 10));
+      const birthYear = parseInt(this.LoginIndexForm.idNumber.slice(6, 10));
       if (!isNaN(birthYear)) {
         this.LoginIndexForm.age = currentYear - birthYear;
       }
@@ -137,13 +137,13 @@ export default {
       const data = this.LoginIndexForm;
 
       registerPlayer(data).then((response) => {
-        if (response) {
+        if (response.code==1) {
           this.$message.success('注册成功');
           setTimeout(() => {
             location.href = 'login.html'
           }, 1000)
         }
-        else {
+        else if(response.code==0) {
           this.$message.warning('该用户已注册')
         }
       }).catch(error => {

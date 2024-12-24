@@ -20,6 +20,7 @@ import EventRegistration from '@/view/EventDetail/EventRegistration.vue'
 import ParticipantLottery from '@/view/EventManagement/ParticipantLottery.vue'
 import PacerSelection from '@/view/EventManagement/PacerSelection.vue'
 import EmergencyRunnerSelection from '@/view/EventManagement/EmergencyRunnerSelection.vue'
+import UpdateScores from '@/view/EventManagement/UpdateScores.vue'
 
 //创建并暴露一个路由器
 export default new VueRouter({
@@ -64,6 +65,11 @@ export default new VueRouter({
           path: 'EmergencyRunnerSelection',
           name: 'EmergencyRunnerSelection',
           component: EmergencyRunnerSelection
+        }, 
+        {
+          path: 'UpdateScores',
+          name: 'UpdateScores',
+          component: UpdateScores
         }, 
       ]
     }, 

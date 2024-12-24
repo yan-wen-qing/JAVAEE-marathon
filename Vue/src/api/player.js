@@ -18,14 +18,17 @@ export function loginPlayer(data) {
   });
 }
 
-// 摄影师登录
-export function loginPhotographer(data) {
+// 管理员登录
+export function loginAdmin() {
   return request({
-    url: '/Auth/login_photographer',
+    url: '/Admin/login',
     method: 'post',
-    data: data
+    data:null
   });
 }
+
+
+
 
 //查找选手信息
 export function getPlayerById(Id) {

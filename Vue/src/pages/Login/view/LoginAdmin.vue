@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import { loginAdmin } from '@/api/player';
+
 export default {
   name: 'LoginAdmin',
   data() {
@@ -42,6 +44,9 @@ export default {
       if (this.adminKey === 'admin') {
         this.$message.success('登录成功！')
         localStorage.setItem('UserRole', 'Admin')
+        loginAdmin().then((response) => {
+          localStorage.setItem('token', response.data);
+        })
         setTimeout(() => {
           location.href = 'index.html'; // 登录成功后跳转到首页
         }, 1000)

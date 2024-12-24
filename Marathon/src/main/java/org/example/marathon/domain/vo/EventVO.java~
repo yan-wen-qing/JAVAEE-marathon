@@ -1,0 +1,4 @@
+package org.example.marathon.domain.vo;
+
+public class EventVO {
+}

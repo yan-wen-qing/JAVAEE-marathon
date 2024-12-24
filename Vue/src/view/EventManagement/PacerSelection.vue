@@ -4,11 +4,11 @@
       <el-main class="Content" v-if="paginatedParticipants.length > 0">
         <div style="margin-top: 10px; margin-bottom: 25px;margin-left: 15px;;font-weight: bold;font-size: 26px;">{{
           this.$route.params.name }}</div>
-        <div class="Button" v-if="pacer_is_chosen === '否'">
+        <div class="Button" v-if="pacerIsChosen === false">
           <div style="margin-left: 65%;">
             <el-button type="primary" @click="openConfirmDialog" style="margin: 0 10px;"
-              :disabled="pacer_is_chosen === '是'">提交</el-button>
-            <el-button type="primary" @click="cancel" :disabled="pacer_is_chosen === '是'">取消</el-button>
+              :disabled="pacerIsChosen === true">提交</el-button>
+            <el-button type="primary" @click="cancel" :disabled="pacerIsChosen === true">取消</el-button>
           </div>
         </div>
         <div v-else style="text-align: left;">
@@ -16,24 +16,31 @@
         </div>
         <div>
           <el-table :data="paginatedParticipants" class="Table" style="width: 100%" max-height="400">
-            <el-table-column prop="id" label="ID" width="100"></el-table-column>
+            <el-table-column prop="playerId" label="ID" width="100"></el-table-column>
             <el-table-column prop="name" label="姓名" width="120"></el-table-column>
-            <el-table-column prop="sex" label="性别" width="100"></el-table-column>
+            <el-table-column prop="gender" label="性别" width="100"></el-table-column>
             <el-table-column prop="age" label="年龄" width="100"></el-table-column>
             <el-table-column prop="number" label="参赛号码" width="120"></el-table-column>
             <el-table-column prop="history" label="历史成绩" width="150">
               <template slot-scope="scope">
-                <el-button @click="showHistory(scope.row)">查看详情</el-button>
+                <el-button @click="loadHistory(scope.row.playerId)">查看详情</el-button>
               </template>
             </el-table-column>
-            <el-table-column label="选为配速员" width="120" v-if="pacer_is_chosen === '否'">
+            <el-table-column label="选为配速员" width="120" v-if="pacerIsChosen === false">
               <template slot-scope="scope">
-                <el-checkbox v-model="scope.row.isPacer" :disabled="pacer_is_chosen === '是'"></el-checkbox>
+                <el-checkbox v-model="scope.row.isPacer" :disabled="pacerIsChosen === true"></el-checkbox>
               </template>
             </el-table-column>
           </el-table>
-          <el-pagination class="Pagination" background layout="prev, pager, next" :total="totalParticipantsCount"
-            :page-size="pageSize" @current-change="handlePageChange"></el-pagination>
+          <el-pagination
+          class="Pagination"
+          background
+          layout="prev, pager, next"
+          :total="totalParticipantsCount"
+          :page-size="pageSize"
+          @current-change="handlePageChange"
+          style="margin-top: 10px;"
+        ></el-pagination>
         </div>
       </el-main>
       <div v-else class="Empty">暂无数据</div>
@@ -41,9 +48,9 @@
       <el-dialog :visible.sync="confirmDialogVisible" title="确定配速员名单为" width="50%">
         <div>
           <el-table :data="selectedPacers" style="width: 100%">
-            <el-table-column prop="id" label="ID" width="100"></el-table-column>
+            <el-table-column prop="playerId" label="ID" width="100"></el-table-column>
             <el-table-column prop="name" label="姓名" width="120"></el-table-column>
-            <el-table-column prop="sex" label="性别" width="80"></el-table-column>
+            <el-table-column prop="gender" label="性别" width="80"></el-table-column>
             <el-table-column prop="age" label="年龄" width="80"></el-table-column>
             <el-table-column prop="number" label="参赛号码" width="110"></el-table-column>
           </el-table>
@@ -61,11 +68,7 @@
             <el-table-column prop="eventDate" label="开赛时间" width="125"></el-table-column>
             <el-table-column prop="eventName" label="赛事名称" width="250"></el-table-column>
             <el-table-column prop="eventType" label="赛事类型" width="125"></el-table-column>
-            <el-table-column prop="result" label="成绩" width="125">
-              <template slot-scope="scope">
-                <div style="font-weight: bold;">{{ formatSeconds(scope.row.result) }}</div>
-              </template>
-            </el-table-column>
+            <el-table-column prop="result" label="成绩" width="120"></el-table-column>
             <el-table-column prop="ranking" label="名次" width="100">
               <template slot-scope="scope">
                 <div style="font-weight: bold;color: rgb(168, 27, 31);">{{ scope.row.ranking }}</div>
@@ -85,26 +88,37 @@
 </template>
 
 <script>
-import {
-  fetchPlayersByEvent,
-  fetchPlayerDetails,
-  fetchPlayerHistory,
-  choosePacer,
-} from '@/api/EventManagement';
-import { fetchEventById } from '@/api/Event';
+import { fetchPlayerHistory, fetchParticipantsByEvent, submitPacers } from '@/api/EventManagement';
+
 export default {
   name: 'PacerSelection',
+  props: {
+    isDrawn: {
+      type: Boolean,
+      default: false,
+    },
+    eventId: {
+      type: [Number, String],
+      required: true,
+    },
+    pacerIsChosen: {
+      type: Boolean,
+      default: false,
+    },
+    aidIsChosen: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
-      totalParticipants: '',
-      historyDialogVisible: false,
-      confirmDialogVisible: false, // 新增确认对话框的显示状态
-      selectedParticipantHistory: '',
-      selectedPacers: [], // 保存选中的配速员信息
-      participants: [],
+      participants: [], // 所有参赛者
+      selectedParticipantHistory: [], // 历史成绩
+      selectedPacers: [], 
       currentPage: 1,
       pageSize: 5,
-      pacer_is_chosen: '否',
+      historyDialogVisible: false, // 历史成绩对话框
+      confirmDialogVisible: false, // 新增确认对话框的显示状态
     };
   },
   computed: {
@@ -118,19 +132,39 @@ export default {
     },
   },
   methods: {
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      const year = date.getFullYear();
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const day = date.getDate().toString().padStart(2, '0');
-      return `${year}-${month}-${day}`;
+    // 加载选手数据
+    async loadParticipants() {
+      try {
+        const players = await fetchParticipantsByEvent(this.eventId);
+        // 过滤出具有参赛号码的选手
+        const filteredPlayers = players.data.filter(player => player.role ==='pacer');
+        // 添加 isPacer 字段并初始化为 false
+        this.participants = filteredPlayers.map(filteredPlayer => ({
+          ...filteredPlayer,
+          isPacer: false,
+        }));
+      } catch (error) {
+        console.error('Failed to fetch participants:', error);
+        this.$message.error('加载选手信息失败，请稍后重试');
+      }
     },
-    handlePageChange(page) {
-      this.currentPage = page;
-    },
-    showHistory(participant) {
-      this.selectedParticipantHistory = participant.history || [];
-      this.historyDialogVisible = true;
+
+    // 查看选手历史成绩
+    async loadHistory(playerId) {
+      try {
+        const response = await fetchPlayerHistory(playerId);
+        this.selectedParticipantHistory = response.data.map((record, index) => ({
+          index: index + 1,
+          eventName: record.eventName,
+          eventDate: record.eventDate,
+          eventType: record.eventType,
+          result: this.formatSeconds(record.netResult),
+          ranking: record.ranking,
+        }));
+        this.historyDialogVisible = true;
+      } catch (error) {
+        console.error('Failed to load history:', error);
+      }
     },
     openConfirmDialog() {
       this.selectedPacers = this.participants.filter(p => p.isPacer);
@@ -140,129 +174,44 @@ export default {
         this.$message.warning('请至少选择一个配速员');
       }
     },
+    // 确认选拔
     async confirmSelection() {
       try {
-        const notselected = this.participants.filter(p => !p.isPacer);
-        const payload = notselected.map(p => ({
-          Number_: p.number,
-          Role_: 'pacer',
-          Player_Id: p.id,
-          Event_Id: this.$route.params.event_id,
-        }));
-
-        payload.push({
-          Number_: null,
-          Role_: 'pacer',
-          Player_Id: 0,
-          Event_Id: this.$route.params.event_id,
-        });
-
-        const response = await choosePacer(payload);
-
-        if (response === true) {
-          this.$message.success('提交成功');
-        } else {
-          this.$message.error('提交失败，请稍后重试');
+        const selectedPacers = this.participants
+          .filter(p => p.isPacer)
+          .map(p => p.playerId);
+        if (selectedPacers.length === 0) {
+          this.$message.warning('请至少选择一个配速员');
+          return;
         }
-
-        this.confirmDialogVisible = false; // 关闭确认对话框
-        this.loadInitialData();
-        this.loadEvent();
+        const response = await submitPacers(this.eventId, selectedPacers);
+        this.$message.success(response.message || '配速员选拔成功！');
+        this.loadParticipants();
+        this.$emit('update:pacerIsChosen', true);
+        this.confirmDialogVisible = false; // 关闭确认框
       } catch (error) {
-        this.$message.error('提交过程中发生错误');
+      console.error('配速员提交失败:', error);
+      this.$message.error('配速员提交失败，请稍后重试');
       }
     },
     cancel() {
-      this.participants.forEach(p => p.isPacer = false);
-      this.$message.info('已取消所有勾选');
+      this.participants.forEach(p => (p.isPacer = false));
     },
-    loadEvent() {
-      const eventId = this.$route.params.event_id;
-      return fetchEventById(eventId)
-        .then(event => {
-          console.log('Event fetched:', event);
-          this.pacer_is_chosen = event.Event.Pacer_Is_Chosen;
-          if (this.pacer_is_chosen === '是') {
-            this.$message.warning('该赛事已经进行过配速员选拔')
-          }
-        })
-        .catch(error => {
-          console.error('Failed to load event:', error);
-          this.$message.error('加载赛事信息失败，请稍后重试。');
-        });
+    // 分页处理
+    handlePageChange(page) {
+      this.currentPage = page;
     },
-    async loadInitialData() {
-      try {
-        const eventId = this.$route.params.event_id;
-        const players = await fetchPlayersByEvent(eventId);
-        const pacers = players.filter(player => player.role_ === 'pacer' && player.number_ !== null);
-
-        const pacerDetailsPromises = pacers.map(async (pacer) => {
-          const details = await fetchPlayerDetails(pacer.player_Id);
-          let history = await fetchPlayerHistory(pacer.player_Id);
-          history = Array.isArray(history) ? history : [];
-
-          const historyWithEventDetailsPromises = history.map(async (h, index) => {
-            const eventDetails = await fetchEventById(h.event_Id);
-            if (!eventDetails || !eventDetails.Event) {
-              console.error(`Failed to fetch event details for event_Id: ${h.event_Id}`);
-              return {
-                index: index + 1,
-                eventDate: 'N/A',
-                eventName: 'N/A',
-                eventType: 'N/A',
-                result: h.net_Result,
-                ranking: h.rank,
-              };
-            }
-
-            const event = eventDetails.Event;
-            return {
-              index: index + 1,
-              eventDate: this.formatDate(event.Event_Date),
-              eventName: event.Name,
-              eventType: event.Category,
-              result: h.net_Result,
-              ranking: h.rank,
-            };
-          });
-
-          const detailedHistory = await Promise.all(historyWithEventDetailsPromises);
-
-          return {
-            id: details.Id,
-            name: details.Name,
-            sex: details.Gender,
-            age: details.Age,
-            number: pacer.number_,
-            isPacer: false,
-            history: detailedHistory,
-          };
-        });
-
-        this.participants = await Promise.all(pacerDetailsPromises);
-      } catch (error) {
-        console.error('Failed to load initial pacers data:', error);
-      }
-    },
+    // 格式化时间
     formatSeconds(seconds) {
-      // 计算小时数
-      const hours = Math.floor(seconds / 3600);
-      // 计算剩余的分钟数
-      const minutes = Math.floor((seconds % 3600) / 60);
-      // 剩余的秒数
-      const secs = seconds % 60;
-
-      // 格式化为HH:MM:SS形式，确保个位数前面补0
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
+      const hours = String(Math.floor(seconds / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+      const secs = String(seconds % 60).padStart(2, '0');
+      return `${hours}:${minutes}:${secs}`;
+    },
   },
   created() {
-    this.loadEvent();
-    this.loadInitialData().then(() => {
-      console.log('Rendering pacers:', this.participants);
-    });
-  }
+    this.loadParticipants();
+  },
 };
 </script>
 

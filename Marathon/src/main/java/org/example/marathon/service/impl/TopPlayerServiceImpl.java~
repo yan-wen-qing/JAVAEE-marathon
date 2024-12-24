@@ -1,0 +1,4 @@
+package org.example.marathon.service.impl;
+
+public class TopPlayerServiceImpl {
+}

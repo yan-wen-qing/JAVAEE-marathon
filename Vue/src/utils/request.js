@@ -3,7 +3,7 @@ import axios from 'axios'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: 'http://113.44.75.241:5158',
+  baseURL: 'http://localhost:8080',
   timeout: 50000, // request timeout
   //withCredentials: true//携带cookie
   async: true,
@@ -16,7 +16,14 @@ const service = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   config => {
-    // 在请求发送之前可以进行一些处理，比如添加 token
+    // 获取 token 的函数，假设它从 localStorage 获取
+    const token = localStorage.getItem('token'); // 获取 token
+
+    if (token) {
+      // 将 token 添加到请求头
+      config.headers['token'] = token;
+    }
+
     return config;
   },
   error => {
@@ -24,6 +31,7 @@ service.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
 
 // 响应拦截器
 service.interceptors.response.use(

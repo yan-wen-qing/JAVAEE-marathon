@@ -22,71 +22,66 @@
               <el-menu-item index="3">
                 <span>急救跑者选拔</span>
               </el-menu-item>
-              
+              <el-menu-item index="4">
+                <span>上传成绩</span>
+              </el-menu-item>
             </el-menu>
           </div>
         </div>
-        <router-view></router-view>
+        <router-view :eventId="eventId" :isDrawn.sync="IsLottery" :pacerIsChosen.sync="PacerIsChosen" :aidIsChosen.sync="AidIsChosen"></router-view>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { fetchEventById } from '@/api/Event.js';
+import { fetchEventById } from '@/api/Event';
+
+
 export default {
   name: 'EventManagementTab',
   data() {
     return {
-      ActiveIndexForEventManagementTab: '',
-      IsLottery: false,
-      EventManagementTabTitle: ['ParticipantLottery', 'PacerSelection', 'EmergencyRunnerSelection'],
+      ActiveIndexForEventManagementTab: '1',
+      IsLottery: false, // 是否已抽签状态
+      PacerIsChosen: false, // 是否已选择配速员
+      AidIsChosen: false, // 是否已选择急救跑者
+      eventId: this.$route.params.event_id, // 当前赛事ID
+      EventManagementTabTitle: ['ParticipantLottery', 'PacerSelection', 'EmergencyRunnerSelection','UpdateScores'],
     };
   },
   methods: {
+    async loadEventStatus() {
+      try {
+        const response = await fetchEventById(this.eventId);
+        this.IsLottery = response.isDrawn === true;
+        this.PacerIsChosen = response.pacerIsChosen === true;
+        this.AidIsChosen = response.aidIsChosen === true;
+      } catch (error) {
+        console.error('获取赛事状态失败:', error);
+      }
+    },
     ActiveIndex(index) {
-      if (this.IsLottery || (index !== '2' && index !== '3')) {
-        this.ActiveIndexForEventManagementTab = index; // 设置当前激活的菜单项
-        this.$router.push({ name: this.EventManagementTabTitle[index - 1], params: { event_id: this.$route.params.event_id, name: this.$route.params.name } });
-      }
-      else {
+      if (!this.IsLottery && index !== '1' ) {
         this.$message.warning('请先完成抽签');
-        this.$bus.$emit('ActiveIndexForEventManagementTab', '1')
-        this.$refs.EventManagementTab.activeIndex = '1';
-        this.$router.push({ name: 'ParticipantLottery', params: { event_id: this.$route.params.event_id, name: this.$route.params.name } });
+        this.ActiveIndexForEventManagementTab = '1';
+        this.$router.push({ name: 'ParticipantLottery', params: { event_id: this.eventId } });
+      }
+      else if(index == '4' && (!this.PacerIsChosen || !this.AidIsChosen)){
+        this.$message.warning('请先完成选拔');
+        this.ActiveIndexForEventManagementTab = '2';
+        this.$router.push({ name: 'PacerSelection', params: { event_id: this.eventId } });
+      } 
+      else {
+        this.ActiveIndexForEventManagementTab = index;
+        this.$router.push({ name: this.EventManagementTabTitle[index - 1], params: { event_id: this.eventId } });
       }
     },
-    LotteryPermission() {
-      this.IsLottery = true
-    },
-    checkIsLottery() {
-      const eventId = this.$route.params.event_id; // 您需要根据实际情况使用 eventId
-      fetchEventById(eventId)
-        .then(event => {
-          // 根据 is_Drawn 的状态设置 IsLottery
-          if (event.Event.Is_Drawn === '是') {
-            this.IsLottery = true;
-          }
-          console.log(event)
-        })
-        .catch(error => {
-          console.error('Failed to load event:', error);
-          this.$message.error('加载赛事信息失败，请稍后重试。');
-        });
-    }
   },
   created() {
-    this.checkIsLottery();
+    this.loadEventStatus();
+    this.ActiveIndex(this.ActiveIndexForEventManagementTab);
   },
-  mounted() {
-    this.$bus.$on('IsLottery', this.LotteryPermission);
-    // 全局总线备用
-    this.$bus.$on('ActiveIndexForEventManagementTab', this.ActiveIndex);
-  },
-  beforeDestroy() {
-    this.$bus.$off('ActiveIndexForEventManagementTab', this.ActiveIndex);
-    this.$bus.$off('IsLottery', this.LotteryPermission);
-  }
 };
 </script>
 
